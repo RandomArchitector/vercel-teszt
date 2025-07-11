@@ -2,13 +2,135 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>Tiszta Lap Teszt</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Az Első Weboldalam!</title>
+    
+    <!-- A CSS Stíluslap a kinézetért felel -->
     <style>
-        body { font-family: sans-serif; display: grid; place-content: center; height: 100vh; margin: 0; background: #222; color: #eee; }
-        h1 { font-size: 5rem; }
+        /* Az egész oldalra vonatkozó alapbeállítások */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Eltávolítja a görgetősávokat */
+            background-color: #1a1a2e; /* Sötétkék háttérszín */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern betűtípus */
+        }
+
+        /* A fő konténer, ami középre rendezi a tartalmat */
+        .main-container {
+            display: flex;
+            justify-content: center; /* Vízszintes középre igazítás */
+            align-items: center;    /* Függőleges középre igazítás */
+            height: 100%;
+            text-align: center;
+            position: relative; /* Pozicionálás a konfettihez */
+            z-index: 2; /* A szöveg a konfetti felett lesz */
+        }
+
+        /* A főcím stílusa */
+        h1 {
+            font-size: 5vw; /* A betűméret a képernyő szélességéhez igazodik */
+            font-weight: bold;
+            color: #ffffff; /* Fehér betűszín */
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 0 0 10px rgba(227, 102, 230, 0.7); /* Fényeffekt a szöveg körül */
+            padding: 20px;
+        }
+        
+        /* A vászon (canvas) a konfetti animációhoz */
+        #confetti-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* A konfetti a szöveg mögött lesz */
+        }
     </style>
 </head>
 <body>
-    <h1>Működik!</h1>
+
+    <!-- Ez a HTML rész adja a weboldal szerkezetét -->
+    <div class="main-container">
+        <h1>Szia Gábor! Elkészítettem az első weboldalam!</h1>
+    </div>
+
+    <!-- A konfetti animáció vászna -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- A JavaScript kód, ami az interaktivitást és az animációt adja -->
+    <script>
+        // A vászon (canvas) és a 2D-s rajzolási kontextus beállítása
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // A vászon méretének beállítása a teljes ablakméretre
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // A konfetti darabkák tárolására szolgáló tömb
+        let confettiPieces = [];
+        const numberOfPieces = 200; // Konfetti darabkák száma
+        const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800'];
+
+        // Egy konfetti darabka létrehozása
+        function createPiece() {
+            return {
+                x: Math.random() * canvas.width, // Véletlenszerű X pozíció
+                y: Math.random() * canvas.height - canvas.height, // A képernyő felett indul
+                size: Math.random() * 8 + 5, // Véletlenszerű méret
+                color: colors[Math.floor(Math.random() * colors.length)], // Véletlenszerű szín
+                speed: Math.random() * 3 + 2, // Véletlenszerű esési sebesség
+                angle: Math.random() * 360, // Véletlenszerű forgási szög
+                spin: (Math.random() - 0.5) * 10 // Véletlenszerű forgási sebesség
+            };
+        }
+
+        // A konfetti darabkák feltöltése a tömbbe
+        for (let i = 0; i < numberOfPieces; i++) {
+            confettiPieces.push(createPiece());
+        }
+
+        // Az animációs ciklus, ami folyamatosan frissíti a vásznat
+        function animate() {
+            // A vászon törlése minden képkocka előtt
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Minden konfetti darabka frissítése és kirajzolása
+            confettiPieces.forEach(piece => {
+                // Pozíció és szög frissítése
+                piece.y += piece.speed;
+                piece.angle += piece.spin;
+
+                // A darabka kirajzolása a vászonra
+                ctx.save();
+                ctx.translate(piece.x, piece.y);
+                ctx.rotate(piece.angle * Math.PI / 180);
+                ctx.fillStyle = piece.color;
+                ctx.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size);
+                ctx.restore();
+
+                // Ha a darabka a képernyő aljára ért, újraindítjuk a tetejéről
+                if (piece.y > canvas.height) {
+                    Object.assign(piece, createPiece());
+                    piece.y = -20; // A képernyő teteje fölött induljon
+                }
+            });
+
+            // A következő képkocka kérése az animációhoz
+            requestAnimationFrame(animate);
+        }
+
+        // Az animáció elindítása
+        animate();
+
+        // Ha a felhasználó átméretezi az ablakot, a vászon is igazodik
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+
 </body>
 </html>
